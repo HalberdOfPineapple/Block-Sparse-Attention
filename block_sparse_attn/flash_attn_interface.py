@@ -1,6 +1,7 @@
 # Copyright (c) 2023, Tri Dao.
 # Get from https://github.com/Dao-AILab/flash-attention/blob/main/flash_attn/flash_attn_interface.py
-
+import os
+import sys
 from typing import Optional, Union
 
 import torch
@@ -8,8 +9,15 @@ import torch.nn as nn
 
 # isort: off
 # We need to import the CUDA kernels after importing torch
-import block_sparse_attn_cuda as flash_attn_cuda
 
+
+original_flags = sys.getdlopenflags()
+try:
+    sys.setdlopenflags(os.RTLD_LAZY | os.RTLD_GLOBAL)
+    import block_sparse_attn_cuda as flash_attn_cuda
+finally:
+    # Restore original flags for future imports
+    sys.setdlopenflags(original_flags)
 # isort: on
 
 

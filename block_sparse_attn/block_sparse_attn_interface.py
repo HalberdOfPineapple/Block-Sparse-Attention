@@ -1,9 +1,16 @@
 # Adapted from https://github.com/Dao-AILab/flash-attention/blob/main/flash_attn/flash_blocksparse_attn_interface.py
-
-import block_sparse_attn_cuda
+import os
+import sys
 import torch
 import torch.nn as nn
 
+original_flags = sys.getdlopenflags()
+try:
+    sys.setdlopenflags(os.RTLD_LAZY | os.RTLD_GLOBAL)
+    import block_sparse_attn_cuda
+finally:
+    # Restore original flags for future imports
+    sys.setdlopenflags(original_flags)
 
 def convert_blockmask(blockmask, causal):
     """Convert from the 0-1 format to the format used by the CUDA code.
